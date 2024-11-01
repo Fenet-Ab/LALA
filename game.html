@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Color Guessing Game</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+      .color-card {
+        width: 200px;
+        height: 200px;
+        margin: 20px auto;
+      }
+      .color-button {
+        width: 100px;
+        height: 50px;
+        margin: 5px;
+        border: none;
+        color: white;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Color Guessing Game</h1>
+    <div class="color-card" id="colorCard"></div>
+    <div id="colorButtons"></div>
+    <p id="result"></p>
+    <p>Your Score: <span id="score">0</span></p>
+    <p>Questions Left: <span id="questionsLeft">5</span></p>
+
+    <script>
+      const colors = [
+        "red",
+        "blue",
+        "green",
+        "yellow",
+        "orange",
+        "purple",
+        "pink",
+        "brown",
+        "black",
+        "white",
+        "gray",
+        "cyan",
+        "magenta",
+        "lime",
+        "navy",
+        "teal",
+        "olive",
+        "maroon",
+        "violet",
+        "indigo",
+      ];
+      let currentColor;
+      let score = 0;
+      let questionsLeft = 5;
+      let term = 1; // Track the current term
+
+      function randomColor() {
+        currentColor = colors[Math.floor(Math.random() * colors.length)];
+        document.getElementById("colorCard").style.backgroundColor =
+          currentColor;
+        document.getElementById("result").textContent = "";
+        generateButtons();
+      }
+
+      function generateButtons() {
+        const colorButtonsDiv = document.getElementById("colorButtons");
+        colorButtonsDiv.innerHTML = ""; // Clear previous buttons
+
+        colors.forEach((color) => {
+          const button = document.createElement("button");
+          button.className = "color-button";
+          button.style.backgroundColor = color;
+          button.textContent = color.charAt(0).toUpperCase() + color.slice(1); // Capitalize color name
+          button.onclick = () => {
+            checkGuess(color);
+            speakColor(color); // Speak the color name
+          };
+          colorButtonsDiv.appendChild(button);
+        });
+      }
+
+      function checkGuess(userGuess) {
+        const result = document.getElementById("result");
+        const scoreDisplay = document.getElementById("score");
+        const questionsLeftDisplay = document.getElementById("questionsLeft");
+
+        if (userGuess === currentColor) {
+          let points = term === 1 ? 5 : term === 2 ? 10 : 15;
+          score += points;
+          scoreDisplay.textContent = score;
+          questionsLeft--;
+          questionsLeftDisplay.textContent = questionsLeft;
+
+          result.textContent = "You are correct!";
+
+          if (questionsLeft > 0) {
+            setTimeout(randomColor, 1000); // Move to next question after 1 second
+          } else {
+            if (term < 3) {
+              term++;
+              questionsLeft = term === 2 ? 10 : 15; // Set questions for next term
+              questionsLeftDisplay.textContent = questionsLeft;
+              setTimeout(() => {
+                result.textContent = "Term completed! Starting next term...";
+                setTimeout(randomColor, 1000);
+              }, 1000);
+            } else {
+              setTimeout(() => {
+                result.textContent =
+                  "Congratulations! You've completed the game!";
+              }, 1000);
+            }
+          }
+        } else {
+          result.textContent = "Guess again!";
+        }
+      }
+
+      function speakColor(color) {
+        const speech = new SpeechSynthesisUtterance(color);
+        window.speechSynthesis.speak(speech);
+      }
+
+      // Initialize the game
+      randomColor();
+    </script>
+  </body>
+</html>
